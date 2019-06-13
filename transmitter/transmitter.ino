@@ -6,6 +6,7 @@
 #include "RF24.h"
 #include "SPI.h"
 #include "AnalogInterfaces.h"
+#include "RateSweeper.h"
 
 #define SwitchPin 7 // button is connected to Pin 8 on NANO
 
@@ -15,6 +16,10 @@
 #define BTN_4   8
 
 int8_t message[5]; // Used to store value before being sent through the NRF24L01
+
+RateSweeper rudderRate;
+RateSweeper elevatorRate;
+RateSweeper aileronRate;
 
 AnalogInterfaces analogInterfaces; //init analog interfaces
 RF24 radio(9,10); // NRF24L01 used SPI pins + Pin 9 and 10 on the NANO
@@ -46,6 +51,11 @@ void setup(void){
   radio.begin(); // Start the NRF24L01
   radio.openWritingPipe(pipe); // Get NRF24L01 ready to transmit
 
+  rudderRate.setRate(2);
+  elevatorRate.setRate(3);
+  aileronRate.setRate(4);
+
+
   //analogInterfaces.retrieveExtremes(); //load extreme values for the analog interface from eeprom, to initialize
 }
 
@@ -58,22 +68,50 @@ void loop(void){
   if (btn1 != btn1_old) //check button1
   {
     btn1_old = btn1;
-    if (btn1 == 0) //on press, send store offset command
+    if (!btn1) //on press, send store offset command
     {
       message[0] = 'o';
       message[1] = analogInterfaces.getPotiAServoScale(); //motor
-      message[2] = analogInterfaces.getLX(); //rudder
-      message[3] = analogInterfaces.getRY(); //elevator
-      message[4] = analogInterfaces.getRX(); //ailerons
+      message[2] = analogInterfaces.getLX() * rudderRate.getRate() / 4; //rudder
+      message[3] = analogInterfaces.getRY() * elevatorRate.getRate() / 4; //elevator
+      message[4] = analogInterfaces.getRX() * aileronRate.getRate() / 4; //ailerons
+      
       radio.write(message, 5); // Send value through NRF24L01
+    }
+  }
+
+  if (btn2 != btn2_old)
+  {
+    btn2_old = btn2;
+    if (!btn2)
+    {
+      rudderRate.nextRate();
+    }
+  }
+
+  if (btn3 != btn3_old)
+  {
+    btn3_old = btn3;
+    if (!btn3)
+    {
+      elevatorRate.nextRate();
+    }
+  }
+
+  if (btn4 != btn4_old)
+  {
+    btn4_old = btn4;
+    if (!btn4)
+    {
+      aileronRate.nextRate();
     }
   }
   
   message[0] = 'c';
   message[1] = analogInterfaces.getPotiAServoScale();
-  message[2] = analogInterfaces.getLX();
-  message[3] = analogInterfaces.getRY();
-  message[4] = analogInterfaces.getRX();
+  message[2] = analogInterfaces.getLX() * rudderRate.getRate() / 4; //rudder
+  message[3] = analogInterfaces.getRY() * elevatorRate.getRate() / 4; //elevator
+  message[4] = analogInterfaces.getRX() * aileronRate.getRate() / 4; //ailerons
   
   radio.write(message, 5); // Send value through NRF24L01
 
