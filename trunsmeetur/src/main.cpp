@@ -136,15 +136,6 @@ void setup(void)
   //first update of the conrol interface
   controlInterface.update();
 
-
-
-/*
-  yawRate.setRate(4); // 2
-  pitchRate.setRate(4); // 3
-  rollRate.setRate(4);
-*/
-
-  //analogInterfaces.retrieveExtremes(); //load extreme values for the analog interface from eeprom, to initialize
 }
 
 void loop(void){
@@ -192,44 +183,4 @@ void loop(void){
   delay(200);
   #endif
 
-
-  /*
-  btn1 = digitalRead(BTN_1);
-  btn2 = digitalRead(BTN_2);
-  btn3 = digitalRead(BTN_3);
-  btn4 = digitalRead(BTN_4);
-  sw1 = digitalRead(SW1);
-  sw2 = digitalRead(SW2);
-
-  if (btn1 != btn1_old) //check button1
-  {
-    btn1_old = btn1;
-    if (!btn1) //on press, send store offset command
-    {
-      command.mode = 'o';
-      command.throttle = analogInterfaces.getPotiAServoScale(); //motor
-      command.yaw = analogInterfaces.getLX() * yawRate.getRate() / 4; //rudder
-      command.pitch = analogInterfaces.getRY() * pitchRate.getRate() / 4; //elevator
-      command.roll = analogInterfaces.getRX() * rollRate.getRate() / 4; //ailerons
-      command.controlByte = (sw2 << 1) | (sw1 << 0);
-
-      radio.stopListening();
-      radio.write(&command, sizeof(command)); // Send value through NRF24L01
-      radio.startListening();
-    }
-  }
-
-
-  command.mode = 'c';
-  command.throttle = analogInterfaces.getPotiAServoScale();
-  command.yaw = limitInt8((int16_t)(analogInterfaces.getLX()) * yawRate.getRate() / 4); //rudder
-  command.pitch = limitInt8((int16_t)(analogInterfaces.getRY()) * pitchRate.getRate() / 4); //elevator
-  command.roll = limitInt8((int16_t)(analogInterfaces.getRX()) * rollRate.getRate() / 4); //ailerons
-  command.controlByte = (sw2 << 1) | (sw1 << 0);
-
-  radio.stopListening();
-  radio.write(&command, sizeof(command)); // Send value through NRF24L01
-  radio.startListening();
-
-  */
 }
